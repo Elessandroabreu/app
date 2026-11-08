@@ -1,0 +1,225 @@
+{
+  "theme": {
+    "mode": "dark",
+    "concept": "Finanças Pro — Deep Slate & Warm Amber Precision",
+    "description": "A high-precision personal finance command dashboard designed as an installable desktop PWA for Brazilian Portuguese (BRL - R$). Avoids generic bank green/blue slop. Uses deep obsidian slate (#0B0F17) with refined indigo/steel structural cards, sharp borders, warm amber/gold accents (#F59E0B) for investments, vibrant emerald (#10B981) for entries/receitas, energetic rose/coral (#F43F5E) for expenses/saídas, and royal violet (#8B5CF6) for categorical analytics."
+  },
+  "colors": {
+    "surfaces": [
+      {
+        "name": "page",
+        "kind": "solid",
+        "bg": "#0B0F17",
+        "on_bg": "#F8FAFC",
+        "on_bg_muted": "#94A3B8",
+        "roles": {
+          "link": "#38BDF8",
+          "error": "#FB7185",
+          "success": "#34D399",
+          "warning": "#FBBF24"
+        }
+      },
+      {
+        "name": "panel",
+        "kind": "solid",
+        "bg": "#111827",
+        "on_bg": "#F8FAFC",
+        "on_bg_muted": "#9CA3AF",
+        "roles": {
+          "link": "#60A5FA",
+          "error": "#F87171",
+          "success": "#4ADE80",
+          "warning": "#FBBF24"
+        }
+      },
+      {
+        "name": "card_subtle",
+        "kind": "solid",
+        "bg": "#1E293B",
+        "on_bg": "#F1F5F9",
+        "on_bg_muted": "#94A3B8"
+      },
+      {
+        "name": "kpi_receita",
+        "kind": "solid",
+        "bg": "#064E3B",
+        "on_bg": "#ECFDF5",
+        "on_bg_muted": "#A7F3D0"
+      },
+      {
+        "name": "kpi_despesa",
+        "kind": "solid",
+        "bg": "#4C0519",
+        "on_bg": "#FFF1F2",
+        "on_bg_muted": "#FECDD3"
+      },
+      {
+        "name": "kpi_saldo",
+        "kind": "solid",
+        "bg": "#1E1B4B",
+        "on_bg": "#EEF2FF",
+        "on_bg_muted": "#C7D2FE"
+      },
+      {
+        "name": "kpi_investimento",
+        "kind": "solid",
+        "bg": "#451A03",
+        "on_bg": "#FFFBEB",
+        "on_bg_muted": "#FDE68A"
+      },
+      {
+        "name": "table_row_alt",
+        "kind": "solid",
+        "bg": "#131C2E",
+        "on_bg": "#F8FAFC",
+        "on_bg_muted": "#94A3B8"
+      },
+      {
+        "name": "modal_dialog",
+        "kind": "solid",
+        "bg": "#0F172A",
+        "on_bg": "#FFFFFF",
+        "on_bg_muted": "#CBD5E1"
+      },
+      {
+        "name": "inverse",
+        "kind": "solid",
+        "bg": "#F8FAFC",
+        "on_bg": "#0F172A",
+        "on_bg_muted": "#475569"
+      }
+    ],
+    "accent": "#F59E0B",
+    "on_accent": "#000000",
+    "border_subtle": "#1F2937",
+    "border_highlight": "#374151"
+  },
+  "typography": {
+    "font_family_heading": "Outfit Variable, sans-serif",
+    "font_family_sans": "Plus Jakarta Sans Variable, sans-serif",
+    "font_family_mono": "JetBrains Mono Variable, monospace",
+    "scale_px": {
+      "display": 48,
+      "h1": 36,
+      "h2": 28,
+      "h3": 20,
+      "body": 16,
+      "caption": 14
+    },
+    "currency_formatting": {
+      "locale": "pt-BR",
+      "currency": "BRL",
+      "example": "R$ 1.250,50",
+      "font": "JetBrains Mono Variable, monospace"
+    }
+  },
+  "entry_surfaces": {
+    "/": "Header with PWA install button & navigation pills top, Month/Year selector ribbon below, 4 distinct tactical KPI cards, split 2-column or dual-card layout for Receitas and Despesas data tables with Category Analytics Donut & side drawer for observations."
+  },
+  "layouts": {
+    "app_shell": {
+      "header": "Fixed top bar with subtle crystal dark glass (bg-slate-950/80 backdrop-blur-md border-b border-slate-800), app logo 'FinanControl PWA', tabs/nav links (Painel do Mês, Relatório Anual, Categorias & Observações, Análise & Filtros), quick '+ Nova Transação' button, and 'Instalar App' PWA CTA button.",
+      "container": "max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6"
+    },
+    "month_selector_ribbon": {
+      "style": "Horizontal scrollable pill list for 12 months (Jan..Dez) with active glow + Year dropdown selector (2024, 2025, 2026, 2027), month summary quick preview.",
+      "data_testid": "month-selector-bar"
+    },
+    "kpi_grid": {
+      "style": "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4",
+      "cards": [
+        {"id": "receitas", "label": "Total Entradas", "accent": "text-emerald-400", "bg": "bg-emerald-950/30 border-emerald-900/50"},
+        {"id": "despesas", "label": "Total Saídas", "accent": "text-rose-400", "bg": "bg-rose-950/30 border-rose-900/50"},
+        {"id": "saldo", "label": "Saldo do Mês", "accent": "text-indigo-400", "bg": "bg-indigo-950/30 border-indigo-900/50"},
+        {"id": "investimento", "label": "Investimentos", "accent": "text-amber-400", "bg": "bg-amber-950/30 border-amber-900/50"}
+      ]
+    },
+    "tables_section": {
+      "style": "grid grid-cols-1 xl:grid-cols-12 gap-6",
+      "receitas_table": "xl:col-span-5 bg-slate-900/90 border border-slate-800 rounded-xl p-5 shadow-sm",
+      "despesas_table": "xl:col-span-7 bg-slate-900/90 border border-slate-800 rounded-xl p-5 shadow-sm",
+      "features": "Dense row rendering supporting up to 100+ transactions with virtual/smooth scrolling, quick search bar, category badge pills with custom hex colors, inline quick action icons (edit, duplicate, delete), and summary footer with total values in Brazilian Real."
+    },
+    "category_breakdown": {
+      "style": "bg-slate-900/90 border border-slate-800 rounded-xl p-6",
+      "visualization": "Recharts ResponsiveContainer PieChart/Donut chart with custom animated hover segments, centered total expenditure, and accompanying dense percentage table with color badges and count of transactions."
+    }
+  },
+  "pwa_requirements": {
+    "manifest": {
+      "name": "FinanControl - Gestão Financeira Pessoal",
+      "short_name": "FinanControl",
+      "start_url": "/",
+      "display": "standalone",
+      "background_color": "#0B0F17",
+      "theme_color": "#0F172A",
+      "description": "Controle financeiro pessoal completo com banco de dados, relatórios e filtros"
+    },
+    "install_prompt_handler": "Capture `beforeinstallprompt` event in window, display dynamic 'Instalar no PC / Celular' button in header that triggers prompt and updates state to 'Instalado'."
+  },
+  "modules_breakdown": {
+    "painel_mensal": {
+      "description": "Visão detalhada do mês selecionado. Inclui KPIs, tabela de receitas, tabela de despesas (com suporte a alta densidade ~80+ linhas), gráfico Donut de despesas por categoria/observação e modais de inclusão/edição rápida.",
+      "data_testids": [
+        "month-pill-item",
+        "year-select",
+        "kpi-entradas-value",
+        "kpi-saidas-value",
+        "kpi-saldo-value",
+        "kpi-investimento-value",
+        "btn-add-receita",
+        "btn-add-despesa",
+        "table-receitas",
+        "table-despesas",
+        "chart-category-donut"
+      ]
+    },
+    "relatorio_anual": {
+      "description": "Tabela consolidada dos 12 meses com Entradas, Saídas, Saldo Calculado, Investimento (editável inline ou por modal) e Totais anuais. Acompanha gráfico de barras comparativo (Entradas vs Saídas) com linha de Investimento e ranking anual de gastos por categoria.",
+      "data_testids": [
+        "annual-report-table",
+        "annual-chart-comparison",
+        "annual-category-ranking"
+      ]
+    },
+    "gerenciamento_categorias": {
+      "description": "Painel de configuração de Categorias / Observações (ex: Gasolina, Mercado, Lanche, Fixo, Compra Física, etc). Permite criar nova categoria, escolher cor e ícone, editar nome, excluir e ver quantidade de transações atreladas e valor total acumulado.",
+      "data_testids": [
+        "btn-create-category",
+        "category-list-item",
+        "category-color-picker",
+        "category-usage-badge"
+      ]
+    },
+    "analise_filtros": {
+      "description": "Ferramenta avançada de filtragem por categoria (ex: ver exatamente quanto gastou de 'Gasolina' ou 'Mercado' em determinado mês ou no ano todo). Exibe total gasto, número de lançamentos, evolução mensal em gráfico e lista completa de transações filtradas.",
+      "data_testids": [
+        "filter-category-select",
+        "filter-period-select",
+        "filter-total-spent",
+        "filter-evolution-chart",
+        "filter-results-table"
+      ]
+    }
+  },
+  "motion": {
+    "page_transitions": "Subtle fade-in and slide-up using motion/react with 0.2s duration ease-out",
+    "chart_hover": "0.15s ease transition on bar and pie segment hover",
+    "kpi_counters": "Smooth numeric update animation on month change",
+    "modal_backdrop": "backdrop-blur-sm bg-black/70 animate-in fade-in"
+  },
+  "accessibility": {
+    "keyboard_navigation": "Full tab order across month selectors, transaction tables, and action modals.",
+    "aria_labels": "Clear Portuguese aria-labels for icon buttons (Excluir transação, Editar transação, Instalar aplicativo).",
+    "contrast_compliance": "All text and numeric displays exceed 4.5:1 APCA/WCAG AA contrast against slate-900 / slate-950 surfaces.",
+    "monospaced_numbers": "Monospaced numerals (tabular-nums font-mono) for strict alignment in financial tables."
+  },
+  "instructions_to_main_agent": [
+    "Install needed font imports in frontend/src/index.css using '@fontsource-variable/outfit', '@fontsource-variable/plus-jakarta-sans', '@fontsource-variable/jetbrains-mono'.",
+    "Ensure FastAPI backend has routes for /api/transactions (CRUD + batch seed from initial spreadsheet data), /api/categories (CRUD for custom categories/observações), /api/investments, /api/annual-summary, and /api/analytics/filter.",
+    "Pre-seed realistic data for all 12 months with common categories: Gasolina, Mercado, Lanche, Fixo, Compra Física, Farmácia, Lazer, etc., so the user immediately sees a populated and functioning financial command center.",
+    "Format all currency values in BRL ('R$ 1.234,56') using Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }) or helper function.",
+    "Include PWA Manifest in public/manifest.json and service worker registration so the app can be installed natively on desktop/mobile.",
+    "Ensure all interactive buttons, inputs, tables, and filters have the prescribed data-testid attributes."
+  ]
+}
