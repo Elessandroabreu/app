@@ -64,8 +64,10 @@ async def get_status_checks():
     return [StatusCheck(**status_check) for status_check in status_checks]
 
 from routers.finance import router as finance_router  # noqa: E402
+from routers.backup import router as backup_router  # noqa: E402
 
 api_router.include_router(finance_router)
+api_router.include_router(backup_router)
 
 # Include the router in the main app
 app.include_router(api_router)

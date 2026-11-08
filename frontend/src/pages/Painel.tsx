@@ -1,7 +1,9 @@
 import { useState } from "react";
 import { motion } from "motion/react";
 import { toast } from "sonner";
-import { ArrowDownRight, ArrowUpRight, PiggyBank, Pencil, Wallet } from "lucide-react";
+import { ArrowDownRight, ArrowUpRight, PiggyBank, Pencil, Repeat, Wallet } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import CopiarRecorrentesDialog from "@/components/CopiarRecorrentesDialog";
 import KpiCard from "@/components/KpiCard";
 import LancamentosTable from "@/components/LancamentosTable";
 import LancamentoDialog from "@/components/LancamentoDialog";
@@ -26,6 +28,7 @@ export default function Painel() {
   const [dialog, setDialog] = useState<{ tipo: Tipo; item?: Lancamento } | null>(null);
   const [apagar, setApagar] = useState<Lancamento | null>(null);
   const [invest, setInvest] = useState(false);
+  const [copiar, setCopiar] = useState(false);
 
   const cores = Object.fromEntries(categorias.map((c) => [c.nome, c.cor]));
   const r = resumo.isError ? undefined : resumo.data;
@@ -104,6 +107,18 @@ export default function Painel() {
           erro={despesas.isError}
           cores={cores}
           onAdd={() => setDialog({ tipo: "despesa" })}
+          extraAction={
+            <Button
+              data-testid="btn-copiar-proximo-mes"
+              size="sm"
+              variant="outline"
+              onClick={() => setCopiar(true)}
+              disabled={!despesas.data?.length}
+              className="gap-1 border-amber-800/60 text-amber-300 hover:bg-amber-500/10 hover:text-amber-200"
+            >
+              <Repeat className="size-4" /> Copiar p/ próximo mês
+            </Button>
+          }
           onEdit={(l) => setDialog({ tipo: "despesa", item: l })}
           onDelete={setApagar}
         />
@@ -127,16 +142,39 @@ export default function Painel() {
         />
       )}
       {invest && <InvestimentoDialog ano={ano} mes={mes} atual={r?.investimento ?? null} onClose={() => setInvest(false)} />}
+      {copiar && <CopiarRecorrentesDialog key={`${ano}-${mes}`} despesas={despesas.data ?? []} onClose={() => setCopiar(false)} />}
       <ConfirmDialog
         open={!!apagar}
-        titulo="Excluir lançamento?"
-        descricao={apagar ? `“${apagar.descricao}” — ${brl(apagar.valor)}. Essa ação não pode ser desfeita.` : ""}
+        titulo={apagar?.grupo_id ? `Excluir parcela ${apagar.parcela}/${apagar.parcelas}?` : "Excluir lançamento?"}
+        descricao={
+          apagar
+            ? `“${apagar.descricao}” — ${brl(apagar.valor)}.${apagar.grupo_id ? " Você pode excluir só esta parcela ou esta e as próximas (compra cancelada/quitada)." : ""} Essa ação não pode ser desfeita.`
+            : ""
+        }
         pending={excluir.isPending}
+        confirmLabel={apagar?.grupo_id ? "Só esta" : "Excluir"}
+        extra={
+          apagar?.grupo_id && apagar.parcela && apagar.parcelas && apagar.parcela < apagar.parcelas
+            ? {
+                label: `Esta e as próximas (${apagar.parcelas - apagar.parcela + 1})`,
+                testId: "confirm-delete-proximas-button",
+                onClick: async () => {
+                  try {
+                    await excluir.mutateAsync({ id: apagar.id, proximas: true });
+                    toast.success("Parcelas excluídas");
+                    setApagar(null);
+                  } catch (e) {
+                    toast.error(errMsg(e, "Não foi possível excluir"));
+                  }
+                },
+              }
+            : undefined
+        }
         onCancel={() => setApagar(null)}
         onConfirm={async () => {
           if (!apagar) return;
           try {
-            await excluir.mutateAsync(apagar.id);
+            await excluir.mutateAsync({ id: apagar.id });
             toast.success("Lançamento excluído");
             setApagar(null);
           } catch (e) {

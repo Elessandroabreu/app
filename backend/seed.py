@@ -20,6 +20,10 @@ async def main() -> None:
     for ordem, (nome, cor) in enumerate(CATEGORIAS_PADRAO):
         if not await db.categorias.find_one({"nome": nome}):
             await db.categorias.insert_one({"id": str(uuid.uuid4()), "nome": nome, "cor": cor, "ordem": ordem})
+    # Fixo já começa marcada como recorrente (só se o usuário ainda não definiu)
+    await db.categorias.update_many(
+        {"nome": "Fixo", "recorrente": {"$exists": False}}, {"$set": {"recorrente": True}}
+    )
 
     if await db.lancamentos.count_documents({}) > 0:
         print("lançamentos já existem — importação ignorada")

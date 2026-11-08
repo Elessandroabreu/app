@@ -49,9 +49,9 @@ def _bloco(ws, col_data: int, ano: int, mes: int, tipo: str) -> list[dict]:
     return out
 
 
-def parse_planilha(path: str) -> tuple[int, list[dict], dict[int, float]]:
-    """Returns (ano, lançamentos, investimentos por mês)."""
-    wb = openpyxl.load_workbook(path, data_only=False)
+def parse_planilha(path) -> tuple[int, list[dict], dict[int, float]]:
+    """Returns (ano, lançamentos, investimentos por mês). `path` can be a filename or a file-like object."""
+    wb = path if isinstance(path, openpyxl.Workbook) else openpyxl.load_workbook(path, data_only=False)
     geral = wb["Relatório Geral"]
     ano = int(geral["I3"].value or date.today().year)
     investimentos: dict[int, float] = {}

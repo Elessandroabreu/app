@@ -21,6 +21,7 @@ def _now_iso() -> str:
 class CategoriaIn(BaseModel):
     nome: str = Field(min_length=1, max_length=40)
     cor: str = Field(pattern=r"^#[0-9A-Fa-f]{6}$")
+    recorrente: bool = False  # pré-selecionada ao copiar despesas para o próximo mês
 
     @field_validator("nome")
     @classmethod
@@ -64,6 +65,44 @@ class LancamentoIn(BaseModel):
 class Lancamento(LancamentoIn):
     id: str = Field(default_factory=_uuid)
     created_at: str = Field(default_factory=_now_iso)
+    # Preenchidos só em compras parceladas: parcela 2 de 3 do grupo X
+    parcela: int | None = None
+    parcelas: int | None = None
+    grupo_id: str | None = None
+
+
+class ParceladoIn(LancamentoIn):
+    parcelas: int = Field(ge=2, le=24)
+    dividir: bool = False  # True: `valor` é o total da compra e será dividido; False: `valor` é o de cada parcela
+
+
+class ImportarIn(BaseModel):
+    arquivo_base64: str = Field(min_length=10)
+    modo: Literal["substituir", "mesclar"]
+    confirmacao: str | None = None  # obrigatório "SUBSTITUIR" quando modo=substituir
+
+
+class ImportarOut(BaseModel):
+    formato: Literal["backup", "planilha"]
+    modo: Literal["substituir", "mesclar"]
+    lancamentos_importados: int
+    lancamentos_ignorados: int
+    categorias_criadas: int
+    investimentos: int
+    linhas_invalidas: int
+
+
+class CopiarIn(BaseModel):
+    ano: int = Field(ge=1900, le=3000)
+    mes: int = Field(ge=1, le=12)
+    ids: list[str] = Field(min_length=1)
+
+
+class CopiarOut(BaseModel):
+    criados: int
+    ignorados: int
+    ano_destino: int
+    mes_destino: int
 
 
 # ---------- Investimento ----------

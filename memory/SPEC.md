@@ -4,8 +4,8 @@ Personal finance control (pt-BR, BRL), built from the user's spreadsheet `CONTRO
 (stored at `backend/data/`). Installable PWA (manifest + `/sw.js`), data in MongoDB. **No login** (user chose no PIN).
 
 ## Data model (Mongo)
-- `categorias` {id, nome (unique, case-insensitive), cor #RRGGBB, ordem} — "observações" of despesas.
-- `lancamentos` {id, tipo receita|despesa, data YYYY-MM-DD, descricao, valor>0, observacao, created_at}
+- `categorias` {id, nome (unique, case-insensitive), cor #RRGGBB, recorrente bool, ordem} — "observações" of despesas.
+- `lancamentos` {id, tipo receita|despesa, data YYYY-MM-DD, descricao, valor>0, observacao, created_at, parcela?, parcelas?, grupo_id?}
   - despesa.observacao must be "" or an existing categoria nome; receita.observacao is free text (e.g. "PG").
 - `investimentos` {ano, mes, valor|null} — manual monthly invested balance (column F of "Relatório Geral").
 
@@ -18,6 +18,15 @@ Personal finance control (pt-BR, BRL), built from the user's spreadsheet `CONTRO
 
 ## Pages
 - `/` Painel do mês: year select + month pills, KPIs, Receitas/Despesas tables (add/edit/delete/search), donut by categoria.
+  - "Copiar p/ próximo mês" (despesas): dialog pre-selects despesas of categorias with `recorrente=true` (default: Fixo),
+    excluding installment items; skips ones already in next month (count-aware for identical rows). POST /lancamentos/copiar-proximo-mes.
+  - New despesa with categoria "Parcelamento" (case-insensitive) shows Parcelas 1–24 + "valor da parcela | valor total";
+    POST /lancamentos/parcelado creates one per month (rolls into next year), fields parcela/parcelas/grupo_id, badge "1/4".
+    Deleting an installment offers "Só esta" or "Esta e as próximas" (DELETE /lancamentos/{id}?proximas=true).
+- `/backup` Export (GET /backup/exportar → .xlsx with sheets Lançamentos/Categorias/Investimentos/Info) and Import
+  (POST /backup/importar {arquivo_base64, modo: substituir|mesclar, confirmacao:"SUBSTITUIR" required for substituir}).
+  Accepts the backup format or the original CONTROLE_FINANCEIRO spreadsheet. Mesclar dedupes by ID (or identical content).
+  Substituir stores a full snapshot in `snapshots_importacao` before clearing.
 - `/relatorio` 12-month table (click month → painel; edit investimento), Entradas×Saídas chart, yearly categories.
 - `/analise?categoria=X&mes=N|ano` total/qtd/média per categoria + evolution chart + comparison + entries list.
 - `/categorias` create (name + color), rename/recolor, delete.

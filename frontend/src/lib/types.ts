@@ -4,6 +4,7 @@ export type Tipo = "receita" | "despesa";
 export interface CategoriaIn {
   nome: string;
   cor: string;
+  recorrente: boolean;
 }
 export interface Categoria extends CategoriaIn {
   id: string;
@@ -24,6 +25,41 @@ export interface LancamentoIn {
 export interface Lancamento extends LancamentoIn {
   id: string;
   created_at: string;
+  parcela: number | null;
+  parcelas: number | null;
+  grupo_id: string | null;
+}
+
+export interface ParceladoIn extends LancamentoIn {
+  parcelas: number;
+  dividir: boolean;
+}
+
+export interface ImportarIn {
+  arquivo_base64: string;
+  modo: "substituir" | "mesclar";
+  confirmacao: string | null;
+}
+export interface ImportarOut {
+  formato: "backup" | "planilha";
+  modo: "substituir" | "mesclar";
+  lancamentos_importados: number;
+  lancamentos_ignorados: number;
+  categorias_criadas: number;
+  investimentos: number;
+  linhas_invalidas: number;
+}
+
+export interface CopiarIn {
+  ano: number;
+  mes: number;
+  ids: string[];
+}
+export interface CopiarOut {
+  criados: number;
+  ignorados: number;
+  ano_destino: number;
+  mes_destino: number;
 }
 
 export interface InvestimentoIn {

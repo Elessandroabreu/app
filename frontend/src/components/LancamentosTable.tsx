@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, type ReactNode } from "react";
 import { Pencil, Plus, Search, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -16,12 +16,13 @@ interface Props {
   onAdd?: () => void;
   onEdit?: (l: Lancamento) => void;
   onDelete?: (l: Lancamento) => void;
+  extraAction?: ReactNode;
   className?: string;
   maxHeight?: string;
 }
 
 export default function LancamentosTable({
-  tipo, titulo, itens, carregando, erro, cores, onAdd, onEdit, onDelete, className, maxHeight = "max-h-[560px]",
+  tipo, titulo, itens, carregando, erro, cores, onAdd, onEdit, onDelete, extraAction, className, maxHeight = "max-h-[560px]",
 }: Props) {
   const [busca, setBusca] = useState("");
   const filtrados = useMemo(() => {
@@ -57,6 +58,7 @@ export default function LancamentosTable({
               className="h-8 w-36 border-slate-700 bg-slate-950/60 pl-8 text-sm"
             />
           </div>
+          {extraAction}
           {onAdd && (
             <Button data-testid={`btn-add-${tipo}`} size="sm" variant="outline" onClick={onAdd} className="gap-1 border-slate-700">
               <Plus className="size-4" /> Adicionar
@@ -101,7 +103,17 @@ export default function LancamentosTable({
                   className="group border-t border-slate-800/60 transition-colors duration-100 even:bg-[#131C2E]/60 hover:bg-slate-800/50"
                 >
                   <td className="whitespace-nowrap px-5 py-2 font-mono text-xs text-slate-400">{dataCurta(l.data)}</td>
-                  <td className="px-2 py-2 text-slate-200" data-testid={`${tipo}-row-descricao`}>{l.descricao}</td>
+                  <td className="px-2 py-2 text-slate-200" data-testid={`${tipo}-row-descricao`}>
+                    {l.descricao}
+                    {l.parcela && l.parcelas && (
+                      <span
+                        data-testid={`${tipo}-row-parcela`}
+                        className="ml-2 rounded bg-amber-500/10 px-1.5 py-px font-mono text-[11px] text-amber-300"
+                      >
+                        {l.parcela}/{l.parcelas}
+                      </span>
+                    )}
+                  </td>
                   <td className="px-2 py-2">
                     {l.observacao ? (
                       isDespesa ? (

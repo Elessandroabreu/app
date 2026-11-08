@@ -5,6 +5,7 @@ import Painel from "@/pages/Painel";
 import Relatorio from "@/pages/Relatorio";
 import Categorias from "@/pages/Categorias";
 import Analise from "@/pages/Analise";
+import Backup from "@/pages/Backup";
 
 // One <Route> per page in src/pages; BrowserRouter already wraps this in main.tsx.
 export default function App() {
@@ -16,6 +17,7 @@ export default function App() {
           <Route path="/relatorio" element={<Relatorio />} />
           <Route path="/analise" element={<Analise />} />
           <Route path="/categorias" element={<Categorias />} />
+          <Route path="/backup" element={<Backup />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Route>
       </Routes>

@@ -6,11 +6,16 @@ import type {
   Categoria,
   CategoriaComUso,
   CategoriaIn,
+  CopiarIn,
+  CopiarOut,
   Hoje,
+  ImportarIn,
+  ImportarOut,
   Investimento,
   InvestimentoIn,
   Lancamento,
   LancamentoIn,
+  ParceladoIn,
   ResumoAnual,
   ResumoMensal,
   Tipo,
@@ -64,9 +69,37 @@ export function useSalvarLancamento() {
   });
 }
 
+export function useCopiarProximoMes() {
+  const invalidar = useInvalidarTudo();
+  return useMutation({
+    mutationFn: (body: CopiarIn) => apiPost<CopiarOut>("/lancamentos/copiar-proximo-mes", body),
+    onSuccess: invalidar,
+  });
+}
+
+export function useSalvarParcelado() {
+  const invalidar = useInvalidarTudo();
+  return useMutation({
+    mutationFn: (body: ParceladoIn) => apiPost<Lancamento[]>("/lancamentos/parcelado", body),
+    onSuccess: invalidar,
+  });
+}
+
+export function useImportarBackup() {
+  const invalidar = useInvalidarTudo();
+  return useMutation({
+    mutationFn: (body: ImportarIn) => apiPost<ImportarOut>("/backup/importar", body),
+    onSuccess: invalidar,
+  });
+}
+
 export function useExcluirLancamento() {
   const invalidar = useInvalidarTudo();
-  return useMutation({ mutationFn: (id: string) => apiDelete<void>(`/lancamentos/${id}`), onSuccess: invalidar });
+  return useMutation({
+    mutationFn: ({ id, proximas = false }: { id: string; proximas?: boolean }) =>
+      apiDelete<void>(`/lancamentos/${id}${proximas ? "?proximas=true" : ""}`),
+    onSuccess: invalidar,
+  });
 }
 
 export function useSalvarCategoria() {

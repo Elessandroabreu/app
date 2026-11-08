@@ -2,6 +2,8 @@
 
 import calendar
 import re
+import uuid
+from datetime import date
 
 from fastapi import APIRouter, HTTPException, Query, Response
 
@@ -14,12 +16,15 @@ from models.finance import (
     CategoriaComUso,
     CategoriaIn,
     CategoriaTotal,
+    CopiarIn,
+    CopiarOut,
     Hoje,
     Investimento,
     InvestimentoIn,
     Lancamento,
     LancamentoIn,
     MesResumo,
+    ParceladoIn,
     PontoMes,
     ResumoAnual,
     ResumoMensal,
@@ -174,6 +179,63 @@ async def criar_lancamento(body: LancamentoIn):
     return lanc
 
 
+@router.post("/lancamentos/copiar-proximo-mes", response_model=CopiarOut)
+async def copiar_proximo_mes(body: CopiarIn):
+    """Copia as despesas escolhidas do mês para o mês seguinte (mesmo dia), sem duplicar."""
+    ano_d, mes_d = (body.ano + 1, 1) if body.mes == 12 else (body.ano, body.mes + 1)
+    ini, fim = _range(body.ano, body.mes)
+    origem = await db.lancamentos.find(
+        {"id": {"$in": body.ids}, "tipo": "despesa", "data": {"$gte": ini, "$lte": fim}}, SEM_ID
+    ).sort([("data", 1), ("created_at", 1)]).to_list(5000)
+    if not origem:
+        raise HTTPException(404, "Nenhuma despesa encontrada para copiar")
+    ultimo_dia = calendar.monthrange(ano_d, mes_d)[1]
+    # Agrupa despesas idênticas: se há 2 iguais na origem, devem existir 2 no destino.
+    grupos: dict[tuple, list[dict]] = {}
+    for o in origem:
+        data = f"{ano_d:04d}-{mes_d:02d}-{min(int(o['data'][8:10]), ultimo_dia):02d}"
+        k = (data, o["descricao"], o["valor"], o["observacao"])
+        grupos.setdefault(k, []).append(o)
+    criados = ignorados = 0
+    for (data, descricao, valor, observacao), itens in grupos.items():
+        chave = {"tipo": "despesa", "data": data, "descricao": descricao, "valor": valor, "observacao": observacao}
+        existentes = await db.lancamentos.count_documents(chave)
+        faltam = max(0, len(itens) - existentes)
+        ignorados += len(itens) - faltam
+        for _ in range(faltam):
+            await db.lancamentos.insert_one(Lancamento(**chave).model_dump())
+            criados += 1
+    return CopiarOut(criados=criados, ignorados=ignorados, ano_destino=ano_d, mes_destino=mes_d)
+
+
+@router.post("/lancamentos/parcelado", response_model=list[Lancamento], status_code=201)
+async def criar_parcelado(body: ParceladoIn):
+    """Cria uma despesa parcelada: uma parcela por mês a partir da data informada (vira o ano se precisar)."""
+    if body.tipo != "despesa":
+        raise HTTPException(400, "Só despesas podem ser parceladas")
+    await _validar_obs(body)
+    n = body.parcelas
+    if body.dividir:
+        base = int(round(body.valor * 100)) // n
+        centavos = [base] * n
+        centavos[-1] += int(round(body.valor * 100)) - base * n  # resto na última
+    else:
+        centavos = [int(round(body.valor * 100))] * n
+    d0 = date.fromisoformat(body.data)
+    grupo = str(uuid.uuid4())
+    itens = []
+    for i in range(n):
+        total_meses = d0.month - 1 + i
+        ano, mes = d0.year + total_meses // 12, total_meses % 12 + 1
+        dia = min(d0.day, calendar.monthrange(ano, mes)[1])
+        itens.append(Lancamento(
+            tipo="despesa", data=f"{ano:04d}-{mes:02d}-{dia:02d}", descricao=body.descricao,
+            valor=centavos[i] / 100, observacao=body.observacao, parcela=i + 1, parcelas=n, grupo_id=grupo,
+        ))
+    await db.lancamentos.insert_many([l.model_dump() for l in itens])
+    return itens
+
+
 @router.put("/lancamentos/{id}", response_model=Lancamento)
 async def editar_lancamento(id: str, body: LancamentoIn):
     atual = await db.lancamentos.find_one({"id": id}, SEM_ID)
@@ -185,10 +247,15 @@ async def editar_lancamento(id: str, body: LancamentoIn):
 
 
 @router.delete("/lancamentos/{id}", status_code=204)
-async def excluir_lancamento(id: str):
-    res = await db.lancamentos.delete_one({"id": id})
-    if not res.deleted_count:
+async def excluir_lancamento(id: str, proximas: bool = False):
+    """Exclui o lançamento. Com `proximas=true` numa parcela, exclui também as parcelas seguintes do mesmo grupo."""
+    atual = await db.lancamentos.find_one({"id": id}, SEM_ID)
+    if not atual:
         raise HTTPException(404, "Lançamento não encontrado")
+    if proximas and atual.get("grupo_id"):
+        await db.lancamentos.delete_many({"grupo_id": atual["grupo_id"], "parcela": {"$gte": atual["parcela"]}})
+    else:
+        await db.lancamentos.delete_one({"id": id})
     return Response(status_code=204)
 
 

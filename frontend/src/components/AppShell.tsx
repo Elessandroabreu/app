@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { NavLink, Outlet, useLocation } from "react-router-dom";
-import { BarChart3, CalendarRange, LayoutDashboard, Tags } from "lucide-react";
+import { BarChart3, CalendarRange, DatabaseBackup, LayoutDashboard, Tags } from "lucide-react";
 import { Toaster } from "@/components/ui/sonner";
 import InstallButton from "@/components/InstallButton";
 import { cn } from "@/lib/utils";
@@ -10,6 +10,7 @@ const NAV = [
   { to: "/relatorio", label: "Relatório anual", icon: CalendarRange, id: "relatorio" },
   { to: "/analise", label: "Análise", icon: BarChart3, id: "analise" },
   { to: "/categorias", label: "Categorias", icon: Tags, id: "categorias" },
+  { to: "/backup", label: "Backup", icon: DatabaseBackup, id: "backup" },
 ];
 
 export default function AppShell() {
